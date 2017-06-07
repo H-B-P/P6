@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<script src="./d3.v4.min.js"></script>
+		<script src="./dimple.v2.3.0.min.js"></script>
+    
+		<style>
+			circle.dimple-series-1 {
+				fill: red;
+			}
+
+			h2 {
+				text-align: center;
+			}
+
+			svg {
+				text-align: center;
+			}
+
+			table, th, td {
+				border: 1px solid black;
+			}
+    		</style>
+
+		<script type="text/javascript">
+			graphno=1;
+			function draw(data) {
+				/*
+				D3.js setup code
+				*/
+
+				"use strict";
+				var margin = 100,
+				width = 1400 - margin,
+				height = 800 - margin;
+
+				//Append graph title
+
+				if(graphno==1){
+					d3.select("containingdiv")
+        					.append("h2")
+        					.text("Total money loaned to users in 'Employed' Category, by month");
+				}
+        			else if(graphno==2){
+					d3.select("containingdiv")
+        					.append("h2")
+        					.text("Proportion of money loaned to users in 'Employed' Category, by month");
+				}
+				else if(graphno==3){
+					d3.select("containingdiv")
+						.append("h2")
+						.text("Count of loans made to users in 'Employed' Category, by month");
+				}
+				else if(graphno==4){
+					d3.select("containingdiv")
+        					.append("h2")
+        					.text("Proportion of loans made to users in 'Employed' Category, by month");
+				}
+	
+				//Declare svg element for chart.
+	
+				var svg = dimple.newSvg("containingdiv", width, height);
+
+				/*
+				Dimple.js Chart construction code
+				*/
+
+				var myChart = new dimple.chart(svg, data);
+
+				var x = myChart.addTimeAxis("x", "Month");
+				if (graphno==1){
+					myChart.addMeasureAxis("y", "Total Loaned Per Month");
+				}
+				else if (graphno==2){
+					myChart.addPctAxis("y", "Total Loaned Per Month");
+				}
+				else if (graphno==3){
+					myChart.addMeasureAxis("y", "Number of Loans Per Month");
+				}
+				else if (graphno==4){
+					myChart.addPctAxis("y", "Number of Loans Per Month");
+				}
+				x.timePeriod=d3.timeMonth;
+				x.dateParseFormat = "%Y-%m";
+				x.tickFormat = "%b %Y";
+				x.timeInterval = 3;
+
+				var s = myChart.addSeries("Months' Income Borrowed", dimple.plot.area);
+
+				s.addOrderRule("Order");
+				s.addOrderRule(["0 to 1","1 to 2","2 to 3","3 to 4","4+"]);
+
+				var leg=myChart.addLegend(740, 10, 500, 20, "left");
+		
+				/*
+				Pre-draw tweaks
+				*/
+				myChart.defaultColors= [
+					new dimple.color("cyan"),
+					new dimple.color("#22FF22"),
+					new dimple.color("yellow"),
+					new dimple.color("orange"),
+					new dimple.color("red")];
+		
+
+		
+				s.getTooltipText = function (e) {
+					if (graphno==1){
+						return ["Month: "+monthNames[e.x.getMonth()]+" "+e.x.getFullYear(),
+							"Loan Category: "+e.aggField[0]+" months",
+							"Money Loaned: £"+numberWithCommas(e.yValue)];
+					}
+					else if (graphno==2){
+						return ["Month: "+monthNames[e.x.getMonth()]+" "+e.x.getFullYear(),
+							"Loan Category: "+e.aggField[0]+" months",
+							"Money Loaned: "+((e.height*1000.0).toFixed()/10.0)+"% of monthly total"];
+					}
+					else if (graphno==3){
+						return ["Month: "+monthNames[e.x.getMonth()]+" "+e.x.getFullYear(),
+							"Loan Category: "+e.aggField[0]+" months",
+							"Loans Made: "+numberWithCommas(e.yValue)];
+					}
+					else if (graphno==4){
+						return ["Month: "+monthNames[e.x.getMonth()]+" "+e.x.getFullYear(),
+							"Loan Category: "+e.aggField[0]+" months",
+							"Loans Made: "+((e.height*1000.0).toFixed()/10.0)+"% of monthly total"];
+					}
+				};
+
+				//Draw the chart!
+		
+				myChart.draw();
+
+				/*
+				Post-draw tweaks
+				*/
+
+				svg.append("text")
+					.attr("x", 300)
+					.attr("y",18)
+					.style("text-anchor","left")
+					.style("font-size", "14px")
+					.style("font-family", "sans-serif")
+					.text("Loans categorised as multiples of debtors' monthly incomes:")
+		
+				if (graphno==1){
+					d3.select("g.dimple-axis-y")
+						.selectAll(".tick")
+						.select(".dimple-custom-axis-label")
+						.text(function(d){return "£"+(d/1000000)+"m"});
+				}
+
+				d3.selectAll("circle").attr("r",6);
+				d3.selectAll("circle").raise();
+
+				if (graphno==1){
+					d3.select(but1).style("font-weight", "bold");
+					d3.select(but2).style("font-weight", "normal");
+					d3.select(but3).style("font-weight", "normal");
+					d3.select(but4).style("font-weight", "normal");
+				}
+				else if (graphno==2){
+					d3.select(but1).style("font-weight", "normal");
+					d3.select(but2).style("font-weight", "bold");
+					d3.select(but3).style("font-weight", "normal");
+					d3.select(but4).style("font-weight", "normal");
+				}
+				else if (graphno==3){
+					d3.select(but1).style("font-weight", "normal");
+					d3.select(but2).style("font-weight", "normal");
+					d3.select(but3).style("font-weight", "bold");
+					d3.select(but4).style("font-weight", "normal");
+				}
+				else if (graphno==4){
+					d3.select(but1).style("font-weight", "normal");
+					d3.select(but2).style("font-weight", "normal");
+					d3.select(but3).style("font-weight", "normal");
+					d3.select(but4).style("font-weight", "bold");
+				}
+			};
+		</script>
+	</head>
+	<body>
+		<script type="text/javascript">
+			/*
+			Use D3 (not dimple.js) to load the TSV file
+			and pass the contents of it to the draw function
+			*/
+			monthNames = ["January", "February", "March",
+				"April", "May", "June", "July",
+				"August", "September", "October",
+				"November", "December"];
+			function numberWithCommas(x) {
+				return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+			}
+  			d3.csv("source_df_2.csv", draw);
+		</script>
+
+		<p>Prosper is a company which facilitates peer-to-peer lending. 
+		It showed explosive growth between late 2010 and early 2014.
+		As the company grew, it became more dependent on loans with
+		amounts which were higher proportions of debtors' incomes.
+		The interactive graphs below show how these changes happened.</p>
+
+		<containingdiv></containingdiv>
+
+		<center>
+			<table style="width:50%">
+				<tr>
+					<th></th>
+					<th>Absolute Values</th>
+					<th>Percentage of Total</th>
+				</tr>
+				<tr>
+					<th>Money Loaned</th>
+					<td><center>
+						<button id="but1" onclick="if (!(graphno==1)){
+								graphno=1; 
+								d3.select('h2').remove();
+								d3.select('svg').remove();
+								d3.csv('source_df_2.csv', draw);}">
+							Graph #1
+						</button>
+					</center></td>
+					<td><center>
+						<button id="but2" onclick="if (!(graphno==2)){
+								graphno=2;
+								d3.select('h2').remove();
+								d3.select('svg').remove();
+								d3.csv('source_df_2.csv', draw);}">
+							Graph #2
+						</button>
+					</center></td>
+				</tr>
+				<tr>
+					<th>Loans Made</th>
+					<td><center>
+						<button id="but3" onclick="if (!(graphno==3)){
+								graphno=3;
+								d3.select('h2').remove();
+								d3.select('svg').remove();
+								d3.csv('source_df_2.csv', draw);}">
+							Graph #3
+						</button>
+					</center></td>
+					<td><center>
+						<button id="but4" onclick="if (!(graphno==4)){
+								graphno=4;
+								d3.select('h2').remove();
+								d3.select('svg').remove();
+								d3.csv('source_df_2.csv', draw);}">
+							Graph #4
+						</button>
+					</center></td>
+				</tr>
+			</table> 
+		</center>
+	</body>
+</html>

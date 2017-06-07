@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script src="http://d3js.org/d3.v4.min.js"></script>
+    <script src="http://dimplejs.org/dist/dimple.v2.3.0.min.js"></script>
+    
+    <style>
+      circle.dimple-series-1 {
+        fill: red;
+      }
+
+      h2 {
+        text-align: center;
+      }
+      svg {
+        text-align: center;
+      }
+    </style>
+
+    <script type="text/javascript">
+       graphno=1;
+      function draw(data) {
+      
+      /*
+        D3.js setup code
+      */
+
+          "use strict";
+          var margin = 100,
+              width = 1400 - margin,
+              height = 800 - margin;
+
+	if(graphno==1){
+		d3.select("body")
+        	.append("h2")
+        	.text("Total money loaned to users in 'Employed' Category, by month");
+	}
+        else{
+		d3.select("body")
+        	.append("h2")
+        	.text("Proportion of money loaned to users in 'Employed' Category, by month");
+	}
+
+          //var svg = d3.select("body")
+            //.append("svg")
+              //.attr("width", width + margin)
+              //.attr("height", height + margin)
+            //.append('g')
+              //  .attr('class','chart');
+           var svg = dimple.newSvg("body", width, height);
+
+      /*
+        Dimple.js Chart construction code
+      */
+
+          var myChart = new dimple.chart(svg, data);
+
+          var x = myChart.addTimeAxis("x", "Month");
+
+          if (graphno==1){
+		myChart.addMeasureAxis("y", "Total Loaned");
+	}
+	else if (graphno==2){
+		myChart.addPctAxis("y", "Total Loaned");
+	}
+	else if (graphno==3){
+          myChart.addMeasureAxis("y", "Number of Loans");
+	}
+          //
+          //myChart.addPctAxis("y", "Number of Loans");
+          x.timePeriod=d3.timeMonth;
+          //x.addOrderRule("Date");
+          x.dateParseFormat = "%Y-%m";
+          x.tickFormat = "%b %Y";
+          x.timeInterval = 3;
+          //debugger;
+          //myChart.addSeries(null, dimple.plot.scatter);
+          var s = myChart.addSeries("Months' Income Borrowed", dimple.plot.area);
+	s.addOrderRule("Order")
+	s.addOrderRule(["0 to 1","1 to 2","2 to 3","3 to 4","4+"])
+	//debugger;
+	//s.categoryFields=["0 to 1", "1 to 2", "2 to 3", "4+", "3 to 4"]
+          //debugger;
+	if (graphno==1){
+		var leg=myChart.addLegend(60, 10, 500, 20, "right");
+		debugger;
+	}
+          myChart.draw();
+		graphno+=1;
+        };
+
+    </script>
+  </head>
+<body>
+  <script type="text/javascript">
+  /*
+    Use D3 (not dimple.js) to load the TSV file
+    and pass the contents of it to the draw function
+    */
+  
+  d3.csv("source_df_1.csv", draw);
+  //d3.csv("source_df_1.csv", draw);
+  //d3.csv("source_df_1.csv", draw);
+  </script>
+</body>
+</html>
